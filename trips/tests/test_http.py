@@ -22,10 +22,7 @@ def create_user(username='user@example.com', password=PASSWORD):
 
 
 
-class AuthenticationTest(APITestCase):
-	"""docstring for AuthenticationTest"APITestCasef __init__(self, arg):
-		super(AuthenticationTest,APITestCase.__init__()
-		self.arg = arg """
+class AuthenticationTest(APITestCase):	
 
 	def test_user_can_sign_up(self):
 		response = self.client.post(reverse('sign_up'), data={

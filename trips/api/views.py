@@ -32,6 +32,10 @@ class LogOutView(views.APIView):
 
 
 class TripView(viewsets.ReadOnlyModelViewSet):
+	lookup_field = 'id'
+	lookup_url_kwarg = 'trip_id'
 	permission_class = (permissions.IsAuthenticated,)
 	queryset = Trip.objects.all()
 	serializer_class = TripSerializer
+
+

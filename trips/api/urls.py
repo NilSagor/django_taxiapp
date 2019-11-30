@@ -24,4 +24,5 @@ urlpatterns = [
     # path('log_in/', LogInView.as_view(), name = 'log_in'),
     # path('log_out/', LogOutView.as_view(), name = 'log_out'),
     path('', TripView.as_view({'get': 'list'}), name = 'trip_list'),
+    path('<uuid:trip_id>/', TripView.as_view({'get': 'retrieve'}), name = 'trip_detail'),
 ]

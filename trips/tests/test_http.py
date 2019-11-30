@@ -66,7 +66,7 @@ class AuthenticationTest(APITestCase):
 class HttpTripTest(APITestCase):
 
 	def setUp(self):
-		User = create_user()
+		user = create_user()
 		self.client.login(username=user.username, password=PASSWORD)
 
 

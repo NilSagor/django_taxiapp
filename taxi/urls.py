@@ -16,7 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include 
 
+from trips.api.views import SignUpView, LogInView, LogOutView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/trips/', include('trips.api.urls')),
+    path('api/sign_up/', SignUpView.as_view(), name = 'sign_up'),
+    path('api/log_in/', LogInView.as_view(), name = 'log_in'),
+    path('api/log_out/', LogOutView.as_view(), name = 'log_out'),
+    path('api/trips/', include('trips.api.urls', 'trip')),
 ]

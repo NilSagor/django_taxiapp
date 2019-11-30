@@ -16,10 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include 
 
-from .views import SignUpView, LogInView, LogOutView
+from trips.api.views import SignUpView, LogInView, LogOutView, TripView
 
+app_name = 'taxi'
 urlpatterns = [    
-    path('sign_up/', SignUpView.as_view(), name = 'sign_up'),
-    path('log_in/', LogInView.as_view(), name = 'log_in'),
-    path('log_out/', LogOutView.as_view(), name = 'log_out'),
+    # path('sign_up/', SignUpView.as_view(), name = 'sign_up'),
+    # path('log_in/', LogInView.as_view(), name = 'log_in'),
+    # path('log_out/', LogOutView.as_view(), name = 'log_out'),
+    path('', TripView.as_view({'get': 'list'}), name = 'trip_list'),
 ]

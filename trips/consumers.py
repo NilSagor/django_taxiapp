@@ -10,7 +10,7 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
 
 	def __init__(self, scope):
 		super().__init__(scope)
-		
+
 		#keep track of the usr's trips
 		self.trips = set()
 
@@ -39,15 +39,15 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
 
 		# add this channel to the new trips groups
 		await self.channel_layer.group_add(
-				group = trip.id,
-				channel = self.channel_name
-			)
+			group=trip_id,
+			channel=self.channel_name
+		)
 
 
 		await self.send_json({
 			'type': 'create.trip',
 			'data': trip_data
-			})
+		})
 
 	async def diconnect(self, code):
 		# remove this channel from every trip's group
@@ -62,6 +62,7 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
 
 		# remove all reference to trips
 		self.trips.clear()
+
 		await super().disconnect(code)
 
 	@database_sync_to_async

@@ -75,7 +75,7 @@ class TestWebsockets:
 		assert data['id'] is not None
 		assert 'A' == data['pick_up_address']
 		assert 'B' == data['drop_off_address']
-		assert Trip.RQUESTED == data['status']
+		assert Trip.REQUESTED == data['status']
 		assert data['driver'] is None
 		assert user.username == data['rider'].get('username')
 

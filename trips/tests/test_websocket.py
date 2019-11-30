@@ -47,26 +47,26 @@ class TestWebsockets:
 		await communicator.disconnect()
 
 
-	async def test_rider_can_create_trips(self, settings):
-		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+	async def test_rider_can_create_trips(self, settings):		
 
 		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
 		# force authentication to get session ID
 		
 		user = await create_user(
-			username = 'rider@example.com',
-			group = 'rider')
-		communicator =await auth_connect(user)		
+				username = 'rider@example.com',
+				group = 'rider'
+			)
+		communicator =await auth_connect(user=user)		
 		
 		# Send JSON message to server
-		await communicator.send_json_to({
-				'type': 'create.trip',
-				'data': {
-					'pick_up_address': 'A',
-					'drop_off_address': 'B',
-					'rider': user.id,
-				}
-			})
+		# await communicator.send_json_to({
+		# 		'type': 'create.trip',
+		# 		'data': {
+		# 			'pick_up_address': 'A',
+		# 			'drop_off_address': 'B',
+		# 			'rider': user.id,
+		# 		}
+		# 	})
 		#receive JSON message from server
 		response = await communicator.receive_json_from()
 		data = response.get('data')
@@ -81,6 +81,43 @@ class TestWebsockets:
 
 
 		await communicator.disconnect()
+
+
+	async def test_rider_is_added_to_trip_group_on_create(self, settings):
+		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+		# force authentication to get session ID
+		
+		user = await create_user(
+			username = 'rider@example.com',
+			group = 'rider')
+
+		# connect and send JSON message to server
+		communicator =await connect_and_create_trip(user=user)		
+		
+		#receive JSON message from server
+		# rider should be added to new trips group
+		response = await communicator.receive_json_from()
+		data = response.get('data')
+
+		trip_id = data['id']
+		message = {
+			'type': 'echo.message',
+			'data': 'This is a test'
+		}
+
+		# Send JSON message to new trips group
+		channel_layer = get_channel_layer()
+		await channel_layer.group_send(trip_id, message=message)
+
+		# Receive JSON message from server
+		response = await communicator.receive_json_from()
+
+		#confirm data
+		assert message == response
+
+
+		await communicator.disconnect()
+
 
 async def auth_connect(user):
 	# force authentication to get session ID
@@ -98,4 +135,21 @@ async def auth_connect(user):
 		)
 	connected, _ = await communicator.connect()
 	assert connected is True
+	return communicator
+
+async def connect_and_create_trip(*,
+		user,
+		pick_up_address = 'A',
+		drop_off_address = 'B'
+	):
+	communicator = await auth_connect(user)
+	await communicator.send_json_to({
+		'type': 'create.trip',
+		'data': {
+			'pick_up_address': pick_up_address,
+			'drop_off_address': drop_off_address,
+			'rider': user.id,
+			}
+
+		})
 	return communicator

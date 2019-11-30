@@ -29,5 +29,5 @@ class TaxiConsumer(AsyncJsonWebsocketConsumer):
 	def _create_trip(self, content):
 		serializer = TripSerializer(data=content)
 		serializer.is_valid(raise_exception = True)
-		trip = serializer.create(serializer.vlaidated_data)
+		trip = serializer.create(serializer.validated_data)
 		return trip 

@@ -53,10 +53,10 @@ class TestWebsockets:
 		# force authentication to get session ID
 		
 		user = await create_user(
-				username = 'rider@example.com',
-				group = 'rider'
-			)
-		communicator =await auth_connect(user=user)		
+			username = 'rider@example.com',
+			group = 'rider'
+		)
+		communicator = await connect_and_create_trip(user=user)		
 		
 		# Send JSON message to server
 		# await communicator.send_json_to({
@@ -87,22 +87,23 @@ class TestWebsockets:
 		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
 		# force authentication to get session ID
 		
-		user = await create_user(
-			username = 'rider@example.com',
-			group = 'rider')
+		user = await create_user(		
+			username='rider@example.com',
+			group='rider'
+		)
 
 		# connect and send JSON message to server
-		communicator =await connect_and_create_trip(user=user)		
+		communicator = await connect_and_create_trip(user=user)		
 		
 		#receive JSON message from server
-		# rider should be added to new trips group
+		# rider should be added to new trip's group
 		response = await communicator.receive_json_from()
 		data = response.get('data')
 
 		trip_id = data['id']
 		message = {
 			'type': 'echo.message',
-			'data': 'This is a test'
+			'data': 'This is a test message'
 		}
 
 		# Send JSON message to new trips group
@@ -138,10 +139,10 @@ async def auth_connect(user):
 	return communicator
 
 async def connect_and_create_trip(*,
-		user,
-		pick_up_address = 'A',
-		drop_off_address = 'B'
-	):
+			user,
+			pick_up_address = 'A',
+			drop_off_address = 'B'
+		):
 	communicator = await auth_connect(user)
 	await communicator.send_json_to({
 		'type': 'create.trip',
@@ -149,7 +150,7 @@ async def connect_and_create_trip(*,
 			'pick_up_address': pick_up_address,
 			'drop_off_address': drop_off_address,
 			'rider': user.id,
-			}
+		}
 
-		})
+	})
 	return communicator

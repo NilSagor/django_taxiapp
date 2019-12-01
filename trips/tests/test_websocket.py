@@ -200,3 +200,18 @@ async def connect_and_create_trip(*,
 
 	})
 	return communicator
+
+async def connect_and_update_trip(*, user, trip, status):
+	communicator = await auth_connect(user)
+	await communicator.send_json_to({
+		'type': 'update.trip',
+		'data': {
+			'id': f'{trip.id}'
+			'pick_up_address': pick_up_address,
+			'drop_off_address': drop_off_address,
+			'status': status, 
+			'driver': user.id,
+		}
+
+	})
+	return communicator

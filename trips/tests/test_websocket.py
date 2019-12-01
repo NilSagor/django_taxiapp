@@ -32,6 +32,11 @@ def create_user(
 	user.save()
 	return user
 
+# a new function to create trip in the database 
+@database_sync_to_async
+def create_trip(**kwargs):
+	return Trip.objects.create(**kwargs)
+
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction = True)
 class TestWebsockets:
@@ -109,6 +114,47 @@ class TestWebsockets:
 		# Send JSON message to new trips group
 		channel_layer = get_channel_layer()
 		await channel_layer.group_send(trip_id, message=message)
+
+		# Receive JSON message from server
+		response = await communicator.receive_json_from()
+
+		#confirm data
+		assert message == response
+
+
+		await communicator.disconnect()
+
+	async def test_rider_is_added_to_trip_groups_on_connect(self, settings):
+		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+		# force authentication to get session ID
+		
+		user = await create_user(		
+			username='rider@example.com',
+			group='rider'
+		)
+
+		# create trips and link to rider
+		trip = await create_trip(
+			pick_up_address = 'A',
+			drop_off_address = 'B',
+			rider = user
+		)
+
+		# connect to server
+		# Trips for riser should be retrieved
+		# Rider should be added to trip's group
+		communicator = await auth_connect(user)
+		message = {
+			'type': 'echo.message',
+			'data': 'this is a test message'
+		}
+		
+
+				
+
+		# Send JSON message to new trips group
+		channel_layer = get_channel_layer()
+		await channel_layer.group_send(f'{trip.id}', message=message)
 
 		# Receive JSON message from server
 		response = await communicator.receive_json_from()

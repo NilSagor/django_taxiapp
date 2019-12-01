@@ -166,6 +166,44 @@ class TestWebsockets:
 		await communicator.disconnect()
 
 
+	async def test_driver_can_update_trips(self, settings):		
+
+		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+				
+		# create trips and link to rider
+		trip = await create_trip(
+			pick_up_address = 'A',
+			drop_off_address = 'B',
+		)
+
+		user = await create_user(
+			username = 'driver@example.com',
+			group = 'driver'
+		)
+		communicator = await connect_and_update_trip(
+			user = user,
+			trip = trip,
+			status = Trip.IN_PROGRESS
+		)		
+		
+		
+		#receive JSON message from server
+		response = await communicator.receive_json_from()
+		data = response.get('data')
+
+		#confirm data
+		assert str(trip.id) == data['id']
+		assert 'A' == data['pick_up_address']
+		assert 'B' == data['drop_off_address']
+		assert Trip.IN_PROGRESS == data['status']		
+		assert user.username == data['driver'].get('username')
+		assert data['rider'] is None
+
+
+		await communicator.disconnect()
+
+
+
 async def auth_connect(user):
 	# force authentication to get session ID
 	client = Client()
@@ -206,9 +244,9 @@ async def connect_and_update_trip(*, user, trip, status):
 	await communicator.send_json_to({
 		'type': 'update.trip',
 		'data': {
-			'id': f'{trip.id}'
-			'pick_up_address': pick_up_address,
-			'drop_off_address': drop_off_address,
+			'id': f'{trip.id}',
+			'pick_up_address': trip.pick_up_address,
+			'drop_off_address': trip.drop_off_address,
 			'status': status, 
 			'driver': user.id,
 		}

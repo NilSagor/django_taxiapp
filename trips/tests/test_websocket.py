@@ -180,6 +180,8 @@ class TestWebsockets:
 			username = 'driver@example.com',
 			group = 'driver'
 		)
+
+		#send JSON message to server
 		communicator = await connect_and_update_trip(
 			user = user,
 			trip = trip,

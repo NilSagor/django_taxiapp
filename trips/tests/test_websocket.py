@@ -204,6 +204,134 @@ class TestWebsockets:
 
 		await communicator.disconnect()
 
+	async def test_driver_is_added_to_trip_groups_on_update(self, settings):
+		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+				
+		# create trips and link to rider
+		trip = await create_trip(
+			pick_up_address = 'A',
+			drop_off_address = 'B',
+		)
+
+		user = await create_user(
+			username = 'driver@example.com',
+			group = 'driver'
+		)
+
+		#send JSON message to server
+		communicator = await connect_and_update_trip(
+			user = user,
+			trip = trip,
+			status = Trip.IN_PROGRESS
+		)		
+		
+		
+		#receive JSON message from server
+		response = await communicator.receive_json_from()
+		data = response.get('data')
+
+
+	
+		# connect to server
+		# Trips for riser should be retrieved
+		# Rider should be added to trip's group
+		trip_id = data['id']
+		message = {
+			'type': 'echo.message',
+			'data': 'this is a test message'
+		}
+		
+
+				
+
+		# Send JSON message to new trips group
+		channel_layer = get_channel_layer()
+		await channel_layer.group_send(trip_id, message=message)
+
+		# Receive JSON message from server
+		response = await communicator.receive_json_from()
+
+		#confirm data
+		assert message == response
+
+
+		await communicator.disconnect()
+
+	async def test_driver_is_alerted_on_trip_create(self, settings):
+		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+
+		# listen to the drivers group test channel
+		channel_layer = get_channel_layer()
+		await channel_layer.group_add(
+			group = 'drivers',
+			channel = 'test_channel'
+		)
+				
+		
+		user = await create_user(
+			username = 'rider@example.com',
+			group = 'rider'
+		)
+
+		#send JSON message to server
+		communicator = await connect_and_create_trip(user = user)		
+		
+		
+		#receive JSON message from server
+		response = await channel_layer.receive('test_channel')
+		data = response.get('data')	
+	
+				
+
+		#confirm data
+		assert data['id'] is not None
+		assert user.username == data['rider'].get('username')
+
+
+		await communicator.disconnect()
+
+	async def test_rider_is_alerted_on_trip_update(self, settings):
+		settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+				
+		# create trips and link to rider
+		trip = await create_trip(
+			pick_up_address = 'A',
+			drop_off_address = 'B',
+		)
+
+		# listen to the trip group test channel
+		channel_layer = get_channel_layer()
+		await channel_layer.group_add(
+			group = f'{trip.id}',
+			channel = 'test_channel'
+		)
+
+		user = await create_user(
+			username = 'driver@example.com',
+			group = 'driver'
+		)
+
+		#send JSON message to server
+		communicator = await connect_and_update_trip(
+			user = user,
+			trip = trip,
+			status = Trip.IN_PROGRESS
+		)		
+		
+		
+		#receive JSON message from server on test channel
+
+		response = await channel_layer.receive('test_channel')		
+		data = response.get('data')
+
+
+
+
+		#confirm data
+		assert f'{trip.id}' == data['id']
+		assert user.username == data['driver'].get('username')
+		await communicator.disconnect()
+
 
 
 async def auth_connect(user):

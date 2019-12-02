@@ -10,6 +10,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from django.contrib.auth.models import Group 
+
+
 from trips.api.serializers import TripSerializer, UserSerializer 
 from trips.models import Trip 
 
@@ -21,9 +24,14 @@ from trips.models import Trip
 PASSWORD = 'pAssw0rd!'
 
 
-def create_user(username='user@example.com', password=PASSWORD):
-	return get_user_model().objects.create_user(
-		username=username, password=password )
+def create_user(username='user@example.com', password=PASSWORD, group_name = 'rider'):
+	group, _ = Group.objects.get_or_create(name=group_name)
+	user = get_user_model().objects.create_user(
+		username=username, password=password)
+	user.groups.add(group)
+	user.save()
+	return user 
+	
 
 
 
@@ -36,6 +44,7 @@ class AuthenticationTest(APITestCase):
 				'last_name': 'User',
 				'password1': PASSWORD,
 				'password2': PASSWORD,
+				'group': 'rider',
 			})
 		user = get_user_model().objects.last()
 		self.assertEqual(status.HTTP_201_CREATED, response.status_code)
@@ -43,6 +52,7 @@ class AuthenticationTest(APITestCase):
 		self.assertEqual(response.data['username'], user.username)
 		self.assertEqual(response.data['first_name'], user.first_name)
 		self.assertEqual(response.data['last_name'], user.last_name)
+		self.assertEqual(response.data['group'], user.group)
 
 
 	def test_user_can_log_in(self):

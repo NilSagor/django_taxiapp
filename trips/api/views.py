@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.forms import AuthenticationForm 
 from rest_framework import generics, views, status, permissions, viewsets   
 from rest_framework.response import Response 
+from django.db.models import Q 
+
 
 from trips.models import Trip
 from .serializers import UserSerializer, TripSerializer  
@@ -35,7 +37,19 @@ class TripView(viewsets.ReadOnlyModelViewSet):
 	lookup_field = 'id'
 	lookup_url_kwarg = 'trip_id'
 	permission_class = (permissions.IsAuthenticated,)
-	queryset = Trip.objects.all()
+	#queryset = Trip.objects.all()
 	serializer_class = TripSerializer
+
+	def get_queryset(self):
+		user = self.request.user
+		if user.group == 'driver':
+			return Trip.objects.filter(
+				Q(status = Trip.REQUESTED)|
+				Q(driver = user)
+			)
+		if user.group == 'rider':
+			return Trip.objects.filter(rider = user)
+		return Trip.objects.none()
+
 
 

@@ -6,7 +6,7 @@ from django.db.models import Q
 
 
 from trips.models import Trip
-from .serializers import UserSerializer, TripSerializer  
+from .serializers import ReadOnlyTripSerializer, UserSerializer  
 
 
 class SignUpView(generics.CreateAPIView):
@@ -38,7 +38,7 @@ class TripView(viewsets.ReadOnlyModelViewSet):
 	lookup_url_kwarg = 'trip_id'
 	permission_class = (permissions.IsAuthenticated,)
 	#queryset = Trip.objects.all()
-	serializer_class = TripSerializer
+	serializer_class = ReadOnlyTripSerializer
 
 	def get_queryset(self):
 		user = self.request.user

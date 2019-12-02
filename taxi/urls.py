@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include 
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 from trips.api.views import SignUpView, LogInView, LogOutView
 
 urlpatterns = [
@@ -25,3 +28,7 @@ urlpatterns = [
     path('api/log_out/', LogOutView.as_view(), name = 'log_out'),
     path('api/trips/', include('trips.api.urls', 'trip')),
 ]
+
+if settings.DEBUG:
+	urlpatterns  += (static(settings.STATIC_URL, document_root=settings.STATIC_ROOT))
+	urlpatterns  += (static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))

@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model 
-from rest_framework import serializers 
+from rest_framework import serializers
+from django.contrib.auth.models import Group 
 
 from trips.models import Trip 
 
 class UserSerializer(serializers.ModelSerializer):
 	password1 = serializers.CharField(write_only=True)
 	password2 = serializers.CharField(write_only=True)
+	group = serializers.CharField()
 
 	def validate(self, data):
 		if data['password1'] != data['password2']:
@@ -13,17 +15,22 @@ class UserSerializer(serializers.ModelSerializer):
 		return data 
 
 	def create(self, validate_data):
+		group_data = validate_data.pop('group')
+		group, _ = Group.objects.get_or_create(name = group_data)
 		data = {
 			key: value for key, value in validate_data.items()
 			if key not in ('password1', 'password2')
 		}
 		data['password'] = validate_data['password1']
-		return self.Meta.model.objects.create_user(**data)
+		user = self.Meta.model.objects.create_user(**data)
+		user.groups.add(group)
+		user.save()
+		return user
 
 	class Meta:
 		model = get_user_model()
 		fields = ('id', 'username', 'password1', 'password2',
-		 'first_name', 'last_name')
+		 'first_name', 'last_name', 'group',)
 		read_only_fields = ('id',)
 		
 

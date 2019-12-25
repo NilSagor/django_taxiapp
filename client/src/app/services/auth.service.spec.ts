@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { AuthService } from './auth.service';
+import { AuthService, User } from './auth.service';
 import { UserFactory } from '../testing/factories';
 
 describe('AuthService', () => {
@@ -56,4 +56,34 @@ describe('Authentication using a service', () => {
 		});
 		const request = httpMock.expectOne('http://localhost:8000/api/sign_up/')
 	});
+
+	it('should allow a new user to log in to an existing account', ()=> {
+		// set up the data
+		const userData = UserFactory.create();
+		// A successful login should write data to local storage
+		localStorage.clear();
+		// Execute the function under test
+		authService.logIn(
+			userData.username, 'pAssw0rd!'
+			).subscribe( =>{
+				expect(user).toBe(userData);
+			});
+		const request = httpMock.expectOne('http://localhost:8000/api/log_in/');
+		request.flush(userData);
+		// confirm that the expected  data was written to local storage
+		expect(localStorage.getItem('taxi.user')).toBe(JSON.stringify(userData));
+	});
+
+	it('should allow a user to log out', () => {
+		// set up the data
+		const userData = {};
+		// a successful logout should delete storage data
+		localStorage.setItem('taxi.user', JSON.stringify({}));
+		// execute the function under test
+		authService.logout().subscribe(user => {
+			expect(user).toEqual(userData);
+		});
+		const request = httpMock.expectOne('http://localhost:8000/api/log_out/');
+		request.flush(userData);
+	})
 });

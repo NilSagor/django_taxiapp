@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
-import { AuthService, User } from './auth.service';
+
 
 
 export class User {
@@ -28,9 +28,9 @@ export class User {
 	}
 
 	static getUser(): User {
-		const UserData = localStorage.getItem('taxi.user');
+		const userData = localStorage.getItem('taxi.user');
 		if (userData) {
-			rturn User.create(JSON.parse(userData));
+			return User.create(JSON.parse(userData));
 		}
 		return null;
 	}
@@ -69,7 +69,7 @@ export class AuthService {
   	password:	string
   ): Observable<User>{
   	const url = 'http://localhost:8000/api/log_in';
-  	return this.http.post<User>(url, {usrname, password}).pipe(
+  	return this.http.post<User>(url, {username, password}).pipe(
   		tap(user =>	localStorage.setItem('taxi.user', JSON.stringify(user))));
   }
 

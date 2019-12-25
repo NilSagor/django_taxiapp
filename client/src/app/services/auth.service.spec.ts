@@ -51,7 +51,7 @@ describe('Authentication using a service', () => {
 			'pAssw0rd!',
 			userData.group,
 			photo
-		).subscribe(user =>{
+		).subscribe(user => {
 			expect(user).toBe(userData);
 		});
 		const request = httpMock.expectOne('http://localhost:8000/api/sign_up/')
@@ -65,9 +65,9 @@ describe('Authentication using a service', () => {
 		// Execute the function under test
 		authService.logIn(
 			userData.username, 'pAssw0rd!'
-			).subscribe( =>{
-				expect(user).toBe(userData);
-			});
+		).subscribe( user => {
+			expect(user).toBe(userData);
+		});
 		const request = httpMock.expectOne('http://localhost:8000/api/log_in/');
 		request.flush(userData);
 		// confirm that the expected  data was written to local storage
@@ -80,7 +80,7 @@ describe('Authentication using a service', () => {
 		// a successful logout should delete storage data
 		localStorage.setItem('taxi.user', JSON.stringify({}));
 		// execute the function under test
-		authService.logout().subscribe(user => {
+		authService.logOut().subscribe(user => {
 			expect(user).toEqual(userData);
 		});
 		const request = httpMock.expectOne('http://localhost:8000/api/log_out/');

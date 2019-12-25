@@ -2,6 +2,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
+import { ForModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthService } from './services/auth.service';
+
 import { AppComponent } from './app.component';
 import { SignUpComponent } from './components/sign-up/sign-up.component';
 import { LogInComponent } from './components/log-in/log-in.component';
@@ -21,14 +25,16 @@ const appRoutes: Routes = [
     LandingComponent
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
+    FormsModule,
     RouterModule,
     RouterModule.forRoot(
       appRoutes,
       {enableTracing: true}
     )
   ],
-  providers: [],
+  providers: [ AuthService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

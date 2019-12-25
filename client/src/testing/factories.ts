@@ -7,7 +7,7 @@ export class UserFactory {
 			id: faker.random.number(),
 			username: faker.internet.email(),
 			first_name: faker.name.firstName(),
-			last_name: faker.name.lastName(),,
+			last_name: faker.name.lastName(),
 			group: 'rider',
 			photo: faker.image.imageUrl(),
 		}, data));

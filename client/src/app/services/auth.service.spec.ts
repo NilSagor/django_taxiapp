@@ -1,16 +1,18 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { AuthService } from './auth.service';
 import { UserFactory } from '../testing/factories';
 
 describe('AuthService', () => {
 	let authService: AuthService;
-  beforeEach(() => TestBed.configureTestingModule({
-  	imports: [HttpClientTestingModule],
-  	declarations: [],
-  	providers: [AuthService]
-  }));
+  	
+  	beforeEach(() => { TestBed.configureTestingModule({
+	  	imports: [HttpClientTestingModule],
+	  	declarations: [],
+	  	providers: [AuthService]
+  	})
+  });
 
 
   it('should be created', () => {
@@ -20,17 +22,17 @@ describe('AuthService', () => {
 });
 
 
-fdescribe('Authentication using a service', () => {
+describe('Authentication using a service', () => {
 	let authService: AuthService;
  	let httpMock: HttpTestingController;
 
-  	beforeEach(() => TestBed.configureTestingModule({
+  	beforeEach(() => { TestBed.configureTestingModule({
 	  	imports: [HttpClientTestingModule],
 	  	declarations: [],
 	  	providers: [AuthService]
  	});
 	 authService = TestBed.get(AuthService);
-	 HttpMock = TestBed.get(HttpTestingController);
+	 httpMock = TestBed.get(HttpTestingController);
 	});
 
 	afterEach(() =>{
@@ -54,6 +56,4 @@ fdescribe('Authentication using a service', () => {
 		});
 		const request = httpMock.expectOne('http://localhost:8000/api/sign_up/')
 	});
-
-
 });

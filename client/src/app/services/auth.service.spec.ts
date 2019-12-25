@@ -85,5 +85,19 @@ describe('Authentication using a service', () => {
 		});
 		const request = httpMock.expectOne('http://localhost:8000/api/log_out/');
 		request.flush(userData);
-	})
+		// confirm that local storage data was deleted
+		expect(localStorage.getItem('taxi.user')).toBeNull();
+	});
+
+	it('should detemine whether a user is logged in', () => {
+		localStorage.clear();
+		expect(User.getUser()).toBeFalsy();
+		localStorage.setItem('taxi.user', JSON.stringify(
+			UserFactory.create()
+			));
+		expect(User.getUser()).toBeTruthy();
+		
+	});
+
+
 });

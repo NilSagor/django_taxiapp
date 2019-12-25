@@ -2,7 +2,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
+import { AuthService, User } from './auth.service';
 
 
 export class User {
@@ -24,6 +25,14 @@ export class User {
 			data.group,
 			data.photo
 		);
+	}
+
+	static getUser(): User {
+		const UserData = localStorage.getItem('taxi.user');
+		if (userData) {
+			rturn User.create(JSON.parse(userData));
+		}
+		return null;
 	}
 }
 
@@ -62,6 +71,13 @@ export class AuthService {
   	const url = 'http://localhost:8000/api/log_in';
   	return this.http.post<User>(url, {usrname, password}).pipe(
   		tap(user =>	localStorage.setItem('taxi.user', JSON.stringify(user))));
+  }
+
+  logOut():Observable<any>{
+  	const url = 'http://localhost:8000/api/log_out/';
+  	return this.http.post(url, null).pipe(
+  		finalize(() => localStorage.removeItem('taxi.user'))
+  	);
   }
 
 
